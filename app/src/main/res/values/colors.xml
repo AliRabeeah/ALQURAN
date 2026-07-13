@@ -1,7 +1,9 @@
 <resources>
-    <color name="background">#F7F4EC</color>
+    <color name="background">#F7F3E8</color>
+    <color name="cardBackground">#FFFFFF</color>
+    <color name="primary">#0B4F3C</color>
     <color name="primaryText">#1B3A2B</color>
-    <color name="secondaryText">#6B7A6F</color>
-    <color name="playerBarBackground">#D8CFA8</color>
-    <color name="primary">#1B3A2B</color>
+    <color name="secondaryText">#6E7C72</color>
+    <color name="gold">#C9A227</color>
+    <color name="goldLight">#E8C468</color>
 </resources>
