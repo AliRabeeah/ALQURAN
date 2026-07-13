@@ -50,7 +50,7 @@ class SurahAdapter(
 
         val isPlaying = currentlyPlaying == surah.number
         holder.playBtn.setImageResource(
-            if (isPlaying) android.R.drawable.ic_media_pause else android.R.drawable.ic_media_play
+            if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
         )
 
         holder.downloadBtn.setOnClickListener {
