@@ -1,0 +1,7 @@
+<resources>
+    <color name="background">#F7F4EC</color>
+    <color name="primaryText">#1B3A2B</color>
+    <color name="secondaryText">#6B7A6F</color>
+    <color name="playerBarBackground">#D8CFA8</color>
+    <color name="primary">#1B3A2B</color>
+</resources>
