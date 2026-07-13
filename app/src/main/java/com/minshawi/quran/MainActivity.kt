@@ -120,19 +120,18 @@ class MainActivity : AppCompatActivity(), DownloadHelper.Listener {
         downloadHelper.download(next)
     }
 
-    override fun onDownloadComplete(surah: Surah, success: Boolean) {
+    override fun onDownloadComplete(surah: Surah, success: Boolean, error: String?) {
         runOnUiThread {
             adapter.markDownloadFinished(surah)
             updateStatus()
             if (!success) {
-                Toast.makeText(this, "تعذر تحميل سورة ${surah.arabicName}", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "تعذر تحميل سورة ${surah.arabicName}: ${error ?: "خطأ غير معروف"}", Toast.LENGTH_LONG).show()
             }
             if (downloadAllQueue.isNotEmpty()) {
                 downloadNextInQueue()
             }
         }
     }
-
     private fun playSurah(surah: Surah) {
         playbackService?.play(surah)
         adapter.currentlyPlaying = surah.number
