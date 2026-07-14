@@ -87,6 +87,7 @@ class MainActivity : AppCompatActivity(), DownloadHelper.Listener {
 
         btnDownloadAll.setOnClickListener { startDownloadAll() }
         btnPlayerToggle.setOnClickListener { playbackService?.togglePause() }
+        playerBar.setOnClickListener { startActivity(Intent(this, PlayerActivity::class.java)) }
 
         seekBar.setOnSeekBarChangeListener(object : SeekBar.OnSeekBarChangeListener {
             override fun onProgressChanged(sb: SeekBar?, progress: Int, fromUser: Boolean) {
@@ -159,7 +160,7 @@ class MainActivity : AppCompatActivity(), DownloadHelper.Listener {
     private fun updatePlayerUi(isPlaying: Boolean, surah: Surah?) {
         adapter.currentlyPlaying = if (isPlaying) surah?.number else null
         btnPlayerToggle.setImageResource(
-            if (isPlaying) R.drawable.ic_pause_white else R.drawable.ic_play_white
+            if (isPlaying) R.drawable.ic_pause else R.drawable.ic_play
         )
     }
 
@@ -181,20 +182,20 @@ class MainActivity : AppCompatActivity(), DownloadHelper.Listener {
     private fun prefs() = getSharedPreferences("settings", MODE_PRIVATE)
 
     private fun applyStoredTheme() {
-        val isDark = prefs().getBoolean("dark_mode", false)
+        val isDark = prefs().getBoolean("dark_mode", true)
         AppCompatDelegate.setDefaultNightMode(
             if (isDark) AppCompatDelegate.MODE_NIGHT_YES else AppCompatDelegate.MODE_NIGHT_NO
         )
     }
 
     private fun toggleTheme() {
-        val isDark = prefs().getBoolean("dark_mode", false)
+        val isDark = prefs().getBoolean("dark_mode", true)
         prefs().edit().putBoolean("dark_mode", !isDark).apply()
         recreate()
     }
 
     private fun updateThemeIcon() {
-        val isDark = prefs().getBoolean("dark_mode", false)
+        val isDark = prefs().getBoolean("dark_mode", true)
         btnThemeToggle.setImageResource(if (isDark) R.drawable.ic_sun else R.drawable.ic_moon)
     }
 
