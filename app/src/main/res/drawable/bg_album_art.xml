@@ -1,12 +1,13 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
     <item>
         <shape android:shape="oval">
-            <solid android:color="#1DB954" />
+            <solid android:color="#000000" />
+            <stroke android:width="2dp" android:color="#D4AF37" />
         </shape>
     </item>
     <item
-        android:width="90dp"
-        android:height="90dp"
+        android:width="120dp"
+        android:height="120dp"
         android:gravity="center"
-        android:drawable="@drawable/ic_play_white" />
+        android:drawable="@drawable/ic_launcher_foreground" />
 </layer-list>
