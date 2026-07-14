@@ -17,21 +17,14 @@
         android:src="@drawable/ic_back"
         android:contentDescription="رجوع" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
 
     <View
-        android:layout_width="230dp"
-        android:layout_height="230dp"
+       <View
+        android:layout_width="130dp"
+        android:layout_height="130dp"
         android:layout_gravity="center"
         android:background="@drawable/bg_album_art" />
 
-    <Space
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight="1" />
 
     <TextView
         android:id="@+id/tvPlayerScreenTitle"
