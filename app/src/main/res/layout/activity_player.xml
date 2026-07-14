@@ -118,5 +118,27 @@
             android:contentDescription="التالي" />
 
     </LinearLayout>
+<TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="الآيات"
+        android:textColor="@color/secondaryText"
+        android:textSize="13sp"
+        android:layout_marginTop="20dp"
+        android:gravity="center" />
 
+    <ScrollView
+        android:id="@+id/scrollAyat"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:layout_marginTop="8dp">
+
+        <LinearLayout
+            android:id="@+id/containerAyat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingBottom="20dp" />
+    </ScrollView>
 </LinearLayout>
