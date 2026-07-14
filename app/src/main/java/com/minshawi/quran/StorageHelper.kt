@@ -26,4 +26,18 @@ object StorageHelper {
 
     fun totalDownloadedCount(context: Context): Int =
         QuranData.surahs.count { isDownloaded(context, it) }
+
+    private fun favPrefs(context: Context) =
+        context.getSharedPreferences("favorites", Context.MODE_PRIVATE)
+
+    fun isFavorite(context: Context, surah: Surah): Boolean =
+        favPrefs(context).getStringSet("favs", emptySet())?.contains(surah.number.toString()) == true
+
+    fun toggleFavorite(context: Context, surah: Surah) {
+        val prefs = favPrefs(context)
+        val current = HashSet(prefs.getStringSet("favs", emptySet()) ?: emptySet())
+        val key = surah.number.toString()
+        if (current.contains(key)) current.remove(key) else current.add(key)
+        prefs.edit().putStringSet("favs", current).apply()
+    }
 }
