@@ -13,6 +13,11 @@ data class Surah(
 
     /** اسم الملف المحلي بعد التحميل */
     val fileName: String get() = "minsh_$paddedNumber.mp3"
+    /** رابط جلب نص الآيات (رواية حفص، رسم عثماني) من واجهة alquran.cloud العامة */
+    val textUrl: String get() =
+        "https://api.alquran.cloud/v1/surah/$number/quran-uthmani"
+
+    val textFileName: String get() = "text_$paddedNumber.json"
 }
 
 object QuranData {
