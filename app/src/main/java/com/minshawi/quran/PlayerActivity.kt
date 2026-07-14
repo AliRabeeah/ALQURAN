@@ -8,10 +8,15 @@ import android.os.Bundle
 import android.os.Handler
 import android.os.IBinder
 import android.os.Looper
+import android.view.Gravity
 import android.widget.ImageButton
+import android.widget.LinearLayout
+import android.widget.ScrollView
 import android.widget.SeekBar
 import android.widget.TextView
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.content.ContextCompat
 
 class PlayerActivity : AppCompatActivity() {
 
@@ -28,6 +33,13 @@ class PlayerActivity : AppCompatActivity() {
     private lateinit var btnNext: ImageButton
     private lateinit var btnPrev: ImageButton
     private lateinit var btnBack: ImageButton
+    private lateinit var containerAyat: LinearLayout
+    private lateinit var scrollAyat: ScrollView
+
+    private var ayahList: List<Ayah> = emptyList()
+    private var ayahViews: List<TextView> = emptyList()
+    private var currentSurahNumber: Int = -1
+    private var lastHighlightedIndex: Int = -1
 
     private val connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, binder: IBinder?) {
@@ -37,7 +49,9 @@ class PlayerActivity : AppCompatActivity() {
             playbackService?.onStateChanged = { isPlaying, surah ->
                 runOnUiThread { updateUi(isPlaying, surah) }
             }
-            updateUi(playbackService?.isPlaying() == true, playbackService?.current())
+            val current = playbackService?.current()
+            updateUi(playbackService?.isPlaying() == true, current)
+            if (current != null) loadAyahText(current)
             startProgressUpdates()
         }
 
@@ -60,6 +74,8 @@ class PlayerActivity : AppCompatActivity() {
         btnNext = findViewById(R.id.btnNextFull)
         btnPrev = findViewById(R.id.btnPrevFull)
         btnBack = findViewById(R.id.btnBackFull)
+        containerAyat = findViewById(R.id.containerAyat)
+        scrollAyat = findViewById(R.id.scrollAyat)
 
         btnBack.setOnClickListener { finish() }
         btnPlayPause.setOnClickListener { playbackService?.togglePause() }
@@ -81,11 +97,92 @@ class PlayerActivity : AppCompatActivity() {
     private fun updateUi(isPlaying: Boolean, surah: Surah?) {
         if (surah != null) {
             tvTitle.text = "سورة ${surah.arabicName}"
+            if (surah.number != currentSurahNumber) {
+                loadAyahText(surah)
+            }
         }
         tvArtist.text = "محمد صديق المنشاوي"
         btnPlayPause.setImageResource(
             if (isPlaying) R.drawable.ic_pause_white else R.drawable.ic_play_white
         )
+    }
+
+    private fun loadAyahText(surah: Surah) {
+        currentSurahNumber = surah.number
+        containerAyat.removeAllViews()
+        ayahList = emptyList()
+        ayahViews = emptyList()
+        lastHighlightedIndex = -1
+
+        val loadingTv = TextView(this).apply {
+            text = "جارِ تحميل نص الآيات..."
+            setTextColor(ContextCompat.getColor(this@PlayerActivity, R.color.secondaryText))
+            gravity = Gravity.CENTER
+            textSize = 13f
+        }
+        containerAyat.addView(loadingTv)
+
+        QuranTextHelper.fetchAyahs(this, surah) { ayahs, error ->
+            containerAyat.removeAllViews()
+            if (ayahs == null) {
+                val errTv = TextView(this).apply {
+                    text = "تعذر تحميل نص الآيات${if (error != null) ": $error" else ""}"
+                    setTextColor(ContextCompat.getColor(this@PlayerActivity, R.color.secondaryText))
+                    gravity = Gravity.CENTER
+                    textSize = 13f
+                }
+                containerAyat.addView(errTv)
+                return@fetchAyahs
+            }
+            ayahList = ayahs
+            val views = mutableListOf<TextView>()
+            for (ayah in ayahs) {
+                val tv = TextView(this).apply {
+                    text = "${ayah.text} ﴿${ayah.number}﴾"
+                    setTextColor(ContextCompat.getColor(this@PlayerActivity, R.color.secondaryText))
+                    textSize = 17f
+                    gravity = Gravity.CENTER
+                    setPadding(8, 14, 8, 14)
+                    setLineSpacing(6f, 1.2f)
+                }
+                containerAyat.addView(tv)
+                views.add(tv)
+            }
+            ayahViews = views
+        }
+    }
+
+    /** تظليل تقريبي للآية الحالية بناءً على نسبة الوقت المنقضي (وليس مزامنة حرفية دقيقة) */
+    private fun updateHighlight(currentMs: Int, totalMs: Int) {
+        if (ayahList.isEmpty() || totalMs <= 0) return
+
+        val totalChars = ayahList.sumOf { it.text.length }.coerceAtLeast(1)
+        var cumulative = 0
+        var targetIndex = 0
+        val progress = currentMs.toFloat() / totalMs.toFloat()
+
+        for ((idx, ayah) in ayahList.withIndex()) {
+            cumulative += ayah.text.length
+            val ayahEndProgress = cumulative.toFloat() / totalChars
+            if (progress <= ayahEndProgress) {
+                targetIndex = idx
+                break
+            }
+            targetIndex = idx
+        }
+
+        if (targetIndex != lastHighlightedIndex && targetIndex < ayahViews.size) {
+            ayahViews.getOrNull(lastHighlightedIndex)?.setTextColor(
+                ContextCompat.getColor(this, R.color.secondaryText)
+            )
+            ayahViews[targetIndex].setTextColor(ContextCompat.getColor(this, R.color.primary))
+            lastHighlightedIndex = targetIndex
+
+            val targetView = ayahViews[targetIndex]
+            scrollAyat.post {
+                scrollAyat.smoothScrollTo(0, targetView.top - 40)
+            }
+        }
     }
 
     private fun formatTime(ms: Int): String {
@@ -105,6 +202,7 @@ class PlayerActivity : AppCompatActivity() {
                     seekBar.progress = service.currentPosition()
                     tvCurrentTime.text = formatTime(service.currentPosition())
                     tvTotalTime.text = formatTime(service.duration())
+                    updateHighlight(service.currentPosition(), service.duration())
                 }
                 handler.postDelayed(this, 500)
             }
